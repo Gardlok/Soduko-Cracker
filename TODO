@@ -1,0 +1,9 @@
+1) Move Kivy code to seperate file to main main file callable without firing up a GUI.
+
+2) Progress bar
+
+3) Completion time leaderboard
+
+4) Implement an error locator for GUI
+
+5) Button design 
