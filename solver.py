@@ -234,7 +234,7 @@ class Puzzle:
             blocks = ["","",""]  
             for row in trio:
                 for i, r in enumerate(group3(row)):
-                blocks[i] += "".join(r)
+                    blocks[i] += "".join(r)
                 for i, c in enumerate(row):
                     cols[i] += c
                 nonets.append(row)
