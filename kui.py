@@ -11,21 +11,9 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.image import Image
+from kivy.uix.dropdown import DropDown
 from kivy.clock import Clock
-
-TEST_DATA = [
-    "3?5?7????",
-    "4?1?2?6?8",
-    "???1??3??",
-    "?5???9?16",
-    "1??8?6??4",
-    "64?2???8?",
-    "??4??1???",
-    "8?7?6?4?1",
-    "????3?7?9"
-    ]
-
-
+from kivy.base import runTouchApp 
 
 
 ###################################################################################################
@@ -51,7 +39,7 @@ class PuzzleCell(Label):
         self.pn_bg.size = instance.size
 
 class PuzzleGrid(GridLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, puzzle, **kwargs):
         super(PuzzleGrid, self).__init__(**kwargs)
         self.spacing = 2
         self.padding = 5
@@ -62,7 +50,7 @@ class PuzzleGrid(GridLayout):
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
         #
-        self.update_pg()
+        self.update_pg(puzzle.clues)
         Clock.schedule_interval(self._randomizer, .1)
         
     def _update_rect(self, instance, value):
@@ -74,7 +62,7 @@ class PuzzleGrid(GridLayout):
             if self.cells[cell].randomize:
                 self.cells[cell].text = random.choice("123456789")
     
-    def update_pg(self, data=TEST_DATA):
+    def update_pg(self, data):
         #                *sigh*
         # TODO: Fix this mess
         if self.cells:
@@ -123,6 +111,57 @@ class LogBoxContainer(GridLayout):
 
 # Right Side Menu #####################################################
 
+class StatusLabel(Label):
+    def __init__(self, main, **kwargs):
+        super(StatusLabel, self).__init__(**kwargs)
+        Label.__init__(self, **kwargs)
+        with self.canvas.before:
+            Color(0, 0, 0)  
+            self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
+        self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
+        self.text = "STATUS"
+        self.size_hint_y = None 
+        self.height = 50
+    def _update_pn_bg(self, instance, value):
+        self.pn_bg.pos = instance.pos
+        self.pn_bg.size = instance.size
+
+class InfoLabel(Label):
+    def __init__(self, main, **kwargs):
+        super(InfoLabel, self).__init__(**kwargs)
+        Label.__init__(self, **kwargs)
+        with self.canvas.before:
+            Color(1, 0, 0)  
+            self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
+        self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
+        
+    def _update_pn_bg(self, instance, value):
+        self.pn_bg.pos = instance.pos
+        self.pn_bg.size = instance.size
+
+
+class SolverSelector(Button):
+    def __init__(self, main, **kwargs):
+        super(SolverSelector, self).__init__(**kwargs)
+        Button.__init__(self, **kwargs)
+        self.text = "Select Solver   \/"
+        self.on_release = self.drop_list
+        self.main = main
+        self.size_hint_y = None 
+        self.height = 50
+        
+    def drop_list(self):
+        dropdown = DropDown()
+
+        for s in self.main.puzzle.solvers:
+            btn = Button(text=s, size_hint_y=None, height=44)
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            dropdown.add_widget(btn)
+
+        self.bind(on_release=dropdown.open)
+        dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
+        print(self.text)
+
 class ButtStart(Button):
     def __init__(self, main, **kwargs):
         super(ButtStart, self).__init__(**kwargs)
@@ -137,19 +176,25 @@ class ButtStart(Button):
         
     def bs_clicked(self):
         print("pressed")
-        solver = self.main.puzzle.current_solver
-        self.main.pg.update_pg(solver.dump_data())
-
+        solver = self.main.puzzle.solve()
+        #self.main.pg.update_pg(solver.solve())
+        
+        
 class MenuCol(GridLayout):
     def __init__(self, main, **kwargs):
         super(MenuCol, self).__init__(**kwargs)
         self.padding = 5
-        GridLayout.__init__(self, cols=1, rows=4)
+        GridLayout.__init__(self, cols=1, rows=6)
         with self.canvas.before:
             Color(1, 0, 0)  
             self.mc_bg = Rectangle()#size=self.size, pos=self.pos)
         self.bind(size=self._update_mc_bg, pos=self._update_mc_bg)
+        self.status_label = StatusLabel(main)
+        self.add_widget(self.status_label)
+        self.add_widget(SolverSelector(main))
         self.add_widget(ButtStart(main))
+        self.add_widget(InfoLabel(main))
+        self.spacing = 15
     
     def _update_mc_bg(self, instance, value):
         self.mc_bg.pos = instance.pos
@@ -176,12 +221,14 @@ class BotRight(Image):
     
 
 class Main(GridLayout):
-    def __init__(self, puzzle, clues=TEST_DATA):
+    def __init__(self, puzzle):
         GridLayout.__init__(self, cols=2, rows = 2);
         self.puzzle = puzzle
-        self.pg = PuzzleGrid(size_hint_x=3, size_hint_y=4)
+        self.puzzle.gui = self
+        self.pg = PuzzleGrid(self.puzzle, size_hint_x=3, size_hint_y=4)
+        self.menu_col = MenuCol(self)
         self.add_widget(self.pg);
-        self.add_widget(MenuCol(self));
+        self.add_widget(self.menu_col);
         self.add_widget(LogBoxContainer("LOgging data would be here"));
         self.add_widget(BotRight())
         

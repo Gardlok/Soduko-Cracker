@@ -23,9 +23,12 @@ class Puzzle:
     #         "?" indicate the blank spaces needed to be filled.
     def __init__(self, clues, has_gui=False):
         self.clue_count = 0
-        self.load_data(clues)
         self.clues = clues
-        self.current_solver = CrossHatchSolver(self.clues)
+        self.data = clues
+        self.has_gui = has_gui
+        self.solvers = {"TestSolver": TestSolver}
+        #self.current_solver = CrossHatchSolver(self.clues)
+        self.current_solver = TestSolver(self.clues)
         if has_gui:
             from kui import SolverApp
             self.gui = SolverApp()
@@ -39,24 +42,6 @@ class Puzzle:
         end = timer()
         return (end - start, f_ret)
         
-    def load_data(self, data):
-        self.grid = {}
-        for i, row in enumerate(data):
-            self.grid[i] = {}
-            for j, character in enumerate(row):
-                self.grid[i][j] = character
-
-    def dump_data(self):
-        data_list = []
-        if not self.grid:
-            assert("There is no data loaded to dump")
-        for i, row in enumerate(self.grid):
-            staging_string = ""
-            for j, character in enumerate(self.grid):
-                staging_string += self.grid[i][j]
-            data_list.append(staging_string)
-        return data_list
-
     def check_data(self, data):
         group3 = lambda x: zip(*(iter(x),) * 3)
         check = lambda x: True if sorted(list(x)) == [str(n+1) for n in range(9)] else False
@@ -77,12 +62,12 @@ class Puzzle:
                 return False
         return True
     
-    def print_grid(self):
+    def print_data(self):
         visual = []    
         x_border = " --- " * 4
         visual.append(x_border)
-        for line in self.grid:
-            visual.append("| " + " ".join([self.grid[line][c] for c in self.grid[line]]) + " |")
+        for line in self.data:
+            visual.append("| " + line + " |")
         visual.append(x_border)
         for line in visual:
             print(line)                
@@ -93,18 +78,43 @@ class Puzzle:
     def solve(self):
         if not self.current_solver:
             assert("solver not set")
-        results = self.timeit(self.solver.solve())
-        prints(results)
+        time, results = self.clockit(self.current_solver.solve())
+        test = self.check_data(results)
+        if self.has_gui:
+            self.gui.pg.update_pg(results)
+            self.gui.menu_col.status_label.text = "SUCCESS!" if test else "FAIL!!!"
+        
+        
+        print(time, results)
 
 ###################################################################################################
 # SOLVERS
 ###################################################################################################
 
+class TestSolver: 
+    def __init__(self, clues):
+        pass
+
+    def solve(self):
+        return [
+                "827154396",
+                "965327148",
+                "341689752",
+                "593468271",
+                "472513689",
+                "618972435",
+                "786235914",
+                "154796823",
+                "239841567"
+                ]
+        
+        
+
 class CrossHatchSolver:
     def __init__(self, clues):
         self.clues = clues
         self.load_data()
-        self.dump_data()
+        #self.dump_data()
 
     def solve(self):
         
@@ -121,12 +131,10 @@ class CrossHatchSolver:
 
     def dump_data(self):
         data_list = []
-        if not self.grid:
-            assert("There is no data loaded to dump")
         for i, row in enumerate(self.grid):
             staging_string = ""
             for j, character in enumerate(self.grid):
-                staging_string += self.grid[i][j].replace("?", "X")
+                staging_string += self.grid[i][j]
             data_list.append(staging_string)
         return data_list
     
