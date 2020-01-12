@@ -31,6 +31,7 @@ class PuzzleCell(Label):
         #
         self.nodes = {}
         self.randomize = False
+        self.font_name = "Gameplay.ttf"
         
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
@@ -123,6 +124,7 @@ class StatusLabel(Label):
         self.text = "STATUS"
         self.size_hint_y = None 
         self.height = 50
+        self.font_name = "Gameplay.ttf"
         
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
@@ -136,6 +138,7 @@ class InfoLabel(Label):
             Color(1, 0, 0)  
             self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
+        self.font_name = "Gameplay.ttf"
         self.time = "0.00"
         self.text = "Time: " + self.time
         
@@ -147,6 +150,7 @@ class SolverSelector(Button):
     def __init__(self, main, **kwargs):
         super(SolverSelector, self).__init__(**kwargs)
         #Button.__init__(self, **kwargs)
+        self.font_name = "Gameplay.ttf"
         self.text = "Select Solver Here"
         self.on_release = self.drop_list
         self.main = main
@@ -157,7 +161,7 @@ class SolverSelector(Button):
         dropdown = DropDown()
 
         for s in self.main.puzzle.solvers:
-            btn = Button(text=s, size_hint_y=None, height=44)
+            btn = Button(text=s, size_hint_y=None, height=44, font_name="Gameplay.ttf")
             btn.bind(on_release=lambda btn: dropdown.select(btn.text))
             dropdown.add_widget(btn)
 
@@ -176,6 +180,7 @@ class ButtStart(Button):
         self.background_color = (1,1,1,1)
         self.size_hint_x=1
         self.size_hint_y=None
+        self.font_name = "Gameplay.ttf"
         
     def bs_clicked(self):
         print("pressed")
@@ -230,14 +235,15 @@ class BotRight(Image):
 
 class Main(GridLayout):
     def __init__(self, puzzle):
-        GridLayout.__init__(self, cols=2, rows = 2);
+        GridLayout.__init__(self, cols=2, rows = 2)
+        self.font_family = "Gameplay.ttf"
         self.puzzle = puzzle
         self.puzzle.gui = self
         self.pg = PuzzleGrid(self.puzzle, size_hint_x=3, size_hint_y=4)
         self.menu_col = MenuCol(self)
-        self.add_widget(self.pg);
-        self.add_widget(self.menu_col);
-        self.add_widget(LogBoxContainer("LOgging data would be here"));
+        self.add_widget(self.pg)
+        self.add_widget(self.menu_col)
+        self.add_widget(LogBoxContainer("LOgging data would be here"))
         self.add_widget(BotRight())
         
         
