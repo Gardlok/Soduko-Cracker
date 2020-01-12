@@ -17,10 +17,8 @@ from kivy.base import runTouchApp
 
 
 ###################################################################################################
-# Kivy UI
+# Puzzle Area
 ###################################################################################################
-
-# Puzzle Area ####################################################
 
 class PuzzleCell(Label):
     def __init__(self, **kwargs):
@@ -75,8 +73,9 @@ class PuzzleGrid(GridLayout):
                 self.add_widget(self.cells[i])
                 self.cells[i].randomize = True if c == "?" else False
     
-
-# Logging Display Area ###########################################
+###################################################################################################
+# Logging Display Area
+###################################################################################################
 
 class LogBox(ScrollView):
     text = StringProperty("")
@@ -109,7 +108,9 @@ class LogBoxContainer(GridLayout):
         self.lbc_bg.pos = instance.pos
         self.lbc_bg.size = instance.size        
 
-# Right Side Menu #####################################################
+###################################################################################################
+# Right Side Menu Area
+###################################################################################################
 
 class StatusLabel(Label):
     def __init__(self, main, **kwargs):
@@ -122,6 +123,7 @@ class StatusLabel(Label):
         self.text = "STATUS"
         self.size_hint_y = None 
         self.height = 50
+        
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
@@ -134,17 +136,18 @@ class InfoLabel(Label):
             Color(1, 0, 0)  
             self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
+        self.time = "0.00"
+        self.text = "Time: " + self.time
         
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
 
-
 class SolverSelector(Button):
     def __init__(self, main, **kwargs):
-        super(SolverSelector, self).__init__(**kwargs)
-        Button.__init__(self, **kwargs)
-        self.text = "Select Solver   \/"
+        #super(SolverSelector, self).__init__(**kwargs)
+        #Button.__init__(self, **kwargs)
+        self.text = "Select Solver Here"
         self.on_release = self.drop_list
         self.main = main
         self.size_hint_y = None 
@@ -179,7 +182,6 @@ class ButtStart(Button):
         solver = self.main.puzzle.solve()
         #self.main.pg.update_pg(solver.solve())
         
-        
 class MenuCol(GridLayout):
     def __init__(self, main, **kwargs):
         super(MenuCol, self).__init__(**kwargs)
@@ -190,10 +192,11 @@ class MenuCol(GridLayout):
             self.mc_bg = Rectangle()#size=self.size, pos=self.pos)
         self.bind(size=self._update_mc_bg, pos=self._update_mc_bg)
         self.status_label = StatusLabel(main)
+        self.info_label = InfoLabel(main)
         self.add_widget(self.status_label)
         self.add_widget(SolverSelector(main))
         self.add_widget(ButtStart(main))
-        self.add_widget(InfoLabel(main))
+        self.add_widget(self.info_label)
         self.spacing = 15
     
     def _update_mc_bg(self, instance, value):
@@ -201,7 +204,9 @@ class MenuCol(GridLayout):
         self.mc_bg.size = instance.size
 
 
-# Main ################################################################        
+###################################################################################################
+# Bottom Right Area
+###################################################################################################
 
 class BotRight(Image):
     def __init__(self, **kwargs):
@@ -219,6 +224,9 @@ class BotRight(Image):
         self.r.pos = instance.pos
         self.r.size = instance.size
     
+###################################################################################################
+# Main
+###################################################################################################
 
 class Main(GridLayout):
     def __init__(self, puzzle):
