@@ -145,7 +145,7 @@ class InfoLabel(Label):
 
 class SolverSelector(Button):
     def __init__(self, main, **kwargs):
-        #super(SolverSelector, self).__init__(**kwargs)
+        super(SolverSelector, self).__init__(**kwargs)
         #Button.__init__(self, **kwargs)
         self.text = "Select Solver Here"
         self.on_release = self.drop_list
