@@ -83,7 +83,7 @@ class Puzzle:
         if self.has_gui:
             self.gui.pg.update_pg(results)
             self.gui.menu_col.status_label.text = "SUCCESS!" if test else "FAIL!!!"
-            self.gui.menu_col.info_label.time = time
+            self.gui.menu_col.info_label.update_time(time)
         
         print(time, results)
 

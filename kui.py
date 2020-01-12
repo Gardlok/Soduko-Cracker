@@ -139,12 +139,18 @@ class InfoLabel(Label):
             self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
         self.font_name = "Gameplay.ttf"
+        self.font_size = 10
         self.time = "0.00"
         self.text = "Time: " + self.time
+        
+    def update_time(self, time):
+        self.time = time
+        self.text = "Time: " + str(self.time)
         
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
+        
 
 class SolverSelector(Button):
     def __init__(self, main, **kwargs):
