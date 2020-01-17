@@ -62,12 +62,12 @@ class CrossHatchSolver:
     def _update_grid(self):
         diff = lambda l1, l2: (list(set(l1) - set(l2))) 
         count = 0
-        for r, row in enumerate(self.grid):
-            g = self.grid[r]
+        for row in self.grid:
+            g = self.grid[row]
             
-            known_in_row = "".join([g[c]["value"] for c in g if g[c]["value"] != "?"])
+            known_in_row = "".join([g[col]["value"] for col in g if g[col]["value"] != "?"])
             #print(f"Known in row: {known_in_row}")
-            for c, col in enumerate(self.grid[row]):
+            for col in self.grid[row]:
                 #character == self.grid[r][c]['value']
                 #print(f"Found '?'at {r}, {c}")
                 
@@ -77,23 +77,23 @@ class CrossHatchSolver:
                 knowns = []
                 [knowns.append(x) for x in "".join(knowns_dups) if x not in knowns]
                 knowns = "".join(knowns)
-                print(f"Cell: ({r}, {c}) knowns: {knowns}")
+                print(f"Cell: ({row}, {col}) knowns: {knowns}")
                 #knowns = list(set(knowns))
                 #print(f"Cleaned knowns: {knowns}")
                 d = diff("".join((str(x+1) for x in range(9))), knowns)
-                #print(f"(Difference of knowns and what's needed: {d}")
+                print(f"(Difference of knowns and what's needed: {d}")
                 if len(d) == 1:
                     self.grid[row][col]['value'] = d[0]
-                    print(f"Changed {r}, {c} to {self.grid[row][col]['value']}")
+                    print(f"Changed {row}, {col} to {self.grid[row][col]['value']}")
                     
     def _update_knowns(self):
         self.unknown_count = 0
         for row in self.grid:
-            for i, col in enumerate(self.grid[row]):
+            for col in self.grid[row]:
                 if self.grid[row][col]["value"] != "?":
                     cell = self.grid[row][col]
-                    if cell["value"] not in self.known_in_cols[i]:
-                        self.known_in_cols[i] += cell["value"]
+                    if cell["value"] not in self.known_in_cols[col]:
+                        self.known_in_cols[col] += cell["value"]
                     if cell["value"] not in self.known_in_blocks[cell["block"]]:
                         self.known_in_blocks[cell["block"]] += cell["value"]
                 else:
