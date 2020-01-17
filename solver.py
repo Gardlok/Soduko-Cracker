@@ -111,33 +111,7 @@ class TestSolver:
         
 
 class CrossHatchSolver:
-    def __init__(self, clues):
-        self.clues = clues
-        self.load_data()
-        #self.dump_data()
-
-    def solve(self):
-        
-        # Logic
-        
-        pass
-
-    def load_data(self):
-        self.grid = {}
-        for i, row in enumerate(self.clues):
-            self.grid[i] = {}
-            for j, character in enumerate(row):
-                self.grid[i][j] = character
-
-    def dump_data(self):
-        data_list = []
-        for i, row in enumerate(self.grid):
-            staging_string = ""
-            for j, character in enumerate(self.grid):
-                staging_string += self.grid[i][j]
-            data_list.append(staging_string)
-        return data_list
-    
+    pass    
     
 ###################################################################################################
 # Running
