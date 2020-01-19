@@ -13,7 +13,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.dropdown import DropDown
 from kivy.clock import Clock
-from kivy.base import runTouchApp 
+from kivy.base import runTouchApp
 
 
 ###################################################################################################
@@ -25,14 +25,14 @@ class PuzzleCell(Label):
         super(PuzzleCell, self).__init__(**kwargs)
         Label.__init__(self, **kwargs)
         with self.canvas.before:
-            Color(0, 0, 0)  
+            Color(0, 0, 0)
             self.pn_bg = Rectangle(size_hint_x=.1, size_hint_y=.1)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
         #
         self.nodes = {}
         self.randomize = False
         self.font_name = "Gameplay.ttf"
-        
+
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
@@ -45,22 +45,22 @@ class PuzzleGrid(GridLayout):
         GridLayout.__init__(self, cols=9, rows=9);
         self.cells = {}
         with self.canvas.before:
-            Color(1, 0, 0)  
+            Color(1, 0, 0)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
         #
         self.update_pg(puzzle.clues)
         Clock.schedule_interval(self._randomizer, .1)
-        
+
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
         self.rect.size = instance.size
-        
+
     def _randomizer(self, event):
         for cell in self.cells:
             if self.cells[cell].randomize:
                 self.cells[cell].text = random.choice("123456789")
-    
+
     def update_pg(self, data):
         #                *sigh*
         # TODO: Fix this mess
@@ -73,7 +73,7 @@ class PuzzleGrid(GridLayout):
                 self.cells[i] = PuzzleCell(text=c)
                 self.add_widget(self.cells[i])
                 self.cells[i].randomize = True if c == "?" else False
-    
+
 ###################################################################################################
 # Logging Display Area
 ###################################################################################################
@@ -84,30 +84,30 @@ class LogBox(ScrollView):
         super(LogBox, self).__init__(**kwargs)
         ScrollView.__init__(self, **kwargs)
         with self.canvas.before:
-            Color(0, 0, 0)  
+            Color(0, 0, 0)
             self.lb = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_lb, pos=self._update_lb)
         self.text = text
         self.add_widget(Label( text=text))
-                        
+
     def _update_lb(self, instance, value):
         self.lb.pos = instance.pos
         self.lb.size = instance.size
-        
+
 class LogBoxContainer(GridLayout):
     def __init__(self, text,**kwargs):
         super(LogBoxContainer, self).__init__(**kwargs)
         self.padding = 5
         GridLayout.__init__(self, cols=1, rows=1)
         with self.canvas.before:
-            Color(1, 0, 0)  
+            Color(1, 0, 0)
             self.lbc_bg = Rectangle()#size=self.size, pos=self.pos)
         self.bind(size=self._update_lbc_bg, pos=self._update_lbc_bg)
         self.add_widget(LogBox(text=text))
-        
+
     def _update_lbc_bg(self, instance, value):
         self.lbc_bg.pos = instance.pos
-        self.lbc_bg.size = instance.size        
+        self.lbc_bg.size = instance.size
 
 ###################################################################################################
 # Right Side Menu Area
@@ -118,14 +118,14 @@ class StatusLabel(Label):
         super(StatusLabel, self).__init__(**kwargs)
         Label.__init__(self, **kwargs)
         with self.canvas.before:
-            Color(0, 0, 0)  
+            Color(0, 0, 0)
             self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
         self.text = "STATUS"
-        self.size_hint_y = None 
+        self.size_hint_y = None
         self.height = 50
         self.font_name = "Gameplay.ttf"
-        
+
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
@@ -135,22 +135,22 @@ class InfoLabel(Label):
         super(InfoLabel, self).__init__(**kwargs)
         Label.__init__(self, **kwargs)
         with self.canvas.before:
-            Color(1, 0, 0)  
+            Color(1, 0, 0)
             self.pn_bg = Rectangle(size_hint_x=.5, size_hint_y=.5)
         self.bind(size=self._update_pn_bg, pos=self._update_pn_bg)
         self.font_name = "Gameplay.ttf"
         self.font_size = 10
         self.time = "0.00"
         self.text = "Time: " + self.time
-        
+
     def update_time(self, time):
         self.time = time
         self.text = "Time: " + str(self.time)
-        
+
     def _update_pn_bg(self, instance, value):
         self.pn_bg.pos = instance.pos
         self.pn_bg.size = instance.size
-        
+
 
 class SolverSelector(Button):
     def __init__(self, main, **kwargs):
@@ -160,20 +160,25 @@ class SolverSelector(Button):
         self.text = "Select Solver Here"
         self.on_release = self.drop_list
         self.main = main
-        self.size_hint_y = None 
+        self.size_hint_y = None
         self.height = 50
-        
+
     def drop_list(self):
-        dropdown = DropDown()
+        self.dropdown = DropDown()
 
         for s in self.main.puzzle.solvers:
             btn = Button(text=s, size_hint_y=None, height=44, font_name="Gameplay.ttf")
-            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
-            dropdown.add_widget(btn)
+            btn.bind(on_release=self._update_current_solver(btn, s))
+            self.dropdown.add_widget(btn)
 
-        self.bind(on_release=dropdown.open)
-        dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
+        self.bind(on_release=self.dropdown.open)
+        self.dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
         print(self.text)
+
+    def _update_current_solver(self, btn, solver_name):
+        self.dropdown.select(btn.text)
+        self.main.puzzle.current_solver = self.main.puzzle.solvers[solver_name]
+
 
 class ButtStart(Button):
     def __init__(self, main, **kwargs):
@@ -187,19 +192,19 @@ class ButtStart(Button):
         self.size_hint_x=1
         self.size_hint_y=None
         self.font_name = "Gameplay.ttf"
-        
+
     def bs_clicked(self):
         print("pressed")
         solver = self.main.puzzle.solve()
         #self.main.pg.update_pg(solver.solve())
-        
+
 class MenuCol(GridLayout):
     def __init__(self, main, **kwargs):
         super(MenuCol, self).__init__(**kwargs)
         self.padding = 5
         GridLayout.__init__(self, cols=1, rows=6)
         with self.canvas.before:
-            Color(1, 0, 0)  
+            Color(1, 0, 0)
             self.mc_bg = Rectangle()#size=self.size, pos=self.pos)
         self.bind(size=self._update_mc_bg, pos=self._update_mc_bg)
         self.status_label = StatusLabel(main)
@@ -209,7 +214,7 @@ class MenuCol(GridLayout):
         self.add_widget(ButtStart(main))
         self.add_widget(self.info_label)
         self.spacing = 15
-    
+
     def _update_mc_bg(self, instance, value):
         self.mc_bg.pos = instance.pos
         self.mc_bg.size = instance.size
@@ -224,17 +229,17 @@ class BotRight(Image):
         super(BotRight, self).__init__(**kwargs)
         Image.__init__(self, **kwargs)
         with self.canvas.before:
-            Color(1, 0, 0)  
+            Color(1, 0, 0)
             self.r = Rectangle(size_hint_x=.1, size_hint_y=.1)
         self.bind(size=self._update_r, pos=self._update_r)
         self.spacing = 50
         self.source="soduko.png"
         self.size_hint_y = 1.5
-        
+
     def _update_r(self, instance, value):
         self.r.pos = instance.pos
         self.r.size = instance.size
-    
+
 ###################################################################################################
 # Main
 ###################################################################################################
@@ -251,11 +256,11 @@ class Main(GridLayout):
         self.add_widget(self.menu_col)
         self.add_widget(LogBoxContainer("LOgging data would be here"))
         self.add_widget(BotRight())
-        
-        
+
+
 class SolverApp(App):
-    
+
     puzzle = None
-    
+
     def build(self):
         return Main(self.puzzle)
