@@ -168,16 +168,15 @@ class SolverSelector(Button):
 
         for s in self.main.puzzle.solvers:
             btn = Button(text=s, size_hint_y=None, height=44, font_name="Gameplay.ttf")
-            btn.bind(on_release=self._update_current_solver(btn, s))
+            btn.bind(on_release=lambda btn: self._update_current_solver(btn))
             self.dropdown.add_widget(btn)
 
         self.bind(on_release=self.dropdown.open)
-        self.dropdown.bind(on_select=lambda instance, x: setattr(self, 'text', x))
-        print(self.text)
+        self.dropdown.bind(on_select=lambda instance, x: setattr(self, "text", x))
 
-    def _update_current_solver(self, btn, solver_name):
+    def _update_current_solver(self, btn):
         self.dropdown.select(btn.text)
-        self.main.puzzle.current_solver = self.main.puzzle.solvers[solver_name]
+        self.main.puzzle.set_solver(self.main.puzzle.solvers[btn.text])
 
 
 class ButtStart(Button):
@@ -194,9 +193,7 @@ class ButtStart(Button):
         self.font_name = "Gameplay.ttf"
 
     def bs_clicked(self):
-        print("pressed")
-        solver = self.main.puzzle.solve()
-        #self.main.pg.update_pg(solver.solve())
+        self.main.puzzle.solve()
 
 class MenuCol(GridLayout):
     def __init__(self, main, **kwargs):

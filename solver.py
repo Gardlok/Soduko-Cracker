@@ -43,8 +43,6 @@ class Puzzle:
         self.solvers = {"TestSolver": TestSolver,
                         "CrossHatchSolver": CrossHatchSolver,
                         "TestSolver2": TestSolver2}
-        #self.current_solver = CrossHatchSolver(self.clues)
-        self.current_solver = TestSolver(self.clues)
         if has_gui:
             from kui import SolverApp
             self.gui = SolverApp()
@@ -88,12 +86,12 @@ class Puzzle:
             print(line)
 
     def set_solver(self, solver):
-        self.current_solver = solver(self.clues)
+        self.current_solver = solver #(self.clues)
 
     def solve(self):
-        if not self.current_solver:
-            assert("solver not set")
-        time, results = self.clockit(self.current_solver.solve())
+        #if not self.current_solver:
+            #assert("solver not set")
+        time, results = self.clockit(self.current_solver(self.clues).solve())
         test = self.check_data(results)
         if self.has_gui:
             self.gui.pg.update_pg(results)
@@ -101,6 +99,7 @@ class Puzzle:
             self.gui.menu_col.info_label.update_time(time)
 
         print(time, results)
+
 
 ###################################################################################################
 # SOLVERS
@@ -119,8 +118,7 @@ class TestSolver2:
         pass
 
     def solve(self):
-        return [x.replace("?", "x") for x in TEST_DATA]
-
+        return [x.replace("?", "K") for x in TEST_DATA]
 
 
 ###################################################################################################
